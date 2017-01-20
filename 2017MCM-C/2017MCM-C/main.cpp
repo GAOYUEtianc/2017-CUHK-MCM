@@ -23,6 +23,10 @@ const double LANE_V_LIMIT[5] = {70.0, 60.0, 60.0, 60.0, 60.0};
 const int OBSERVABLE_DIST_HUMAN_DRI = 100;
 const int OBSERVABLE_BLOCKS_HUMAN_DRI = OBSERVABLE_DIST_HUMAN_DRI / BLOCK_LENGTH + 1;
     //Caution!!! OBSERVABLE_BLOCKS_HUMAN_DRI may exceeds the actual observable range!!!
+const int NO_CAR_DIST = 50;
+const int NO_CAR_BLOCK = NO_CAR_DIST / BLOCK_LENGTH;
+const int TRIGGER_DIST = 150;
+const int TRIGGER_BLOCK = TRIGGER_DIST / BLOCK_LENGTH;
 const double COEF[4] = {0.0073, 0.0010, -0.0024, -0.0004};
 
 class Car {
@@ -131,9 +135,24 @@ void move(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
 }
 
 void runDT(Car *road[][NUM_BLOCKS_PER_LANE]) {
-    for (int i = NUM_BLOCKS_PER_LANE - 1; i >= 0; i--) {
-        for (int j = 0; j < NUM_LANE; j++) {
-            move(road, j, i);
+    for (int blockPos = NUM_BLOCKS_PER_LANE - 1; blockPos >= 0; blockPos--) {
+        for (int lane = 0; lane < NUM_LANE; lane++) {
+            move(road, lane, blockPos);
+        }
+    }
+    for (int lane = 0; lane < NUM_LANE; lane++) {
+        int nearestCarBlock = TRIGGER_BLOCK;
+        for (int blockPos = TRIGGER_BLOCK - 1; blockPos >= 0; blockPos--) {
+            if (road[lane][blockPos] != NULL) {
+                nearestCarBlock = blockPos;
+            }
+        }
+        if (rand() <
+            (RAND_MAX *
+                ((double) (nearestCarBlock - NO_CAR_BLOCK))
+                    /(TRIGGER_DIST - NO_CAR_BLOCK))) {
+                Car *newCar = new Car('h', 1.5, 30.0, 0.0, lane, 0);
+                road[lane][0] = newCar;
         }
     }
 }
