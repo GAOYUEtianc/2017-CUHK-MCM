@@ -47,11 +47,29 @@ private:
 public:
     Edge(int routeID, char type, Vertex *startMilepost, Vertex *endMilepost, int numLaneDec, int numLaneInc) {
         this->routeID = routeID;
-        this->type = type;
+        this->type = type;                 //type of road, possible "IS" or "SR"
         this->startMilepost = startMilepost;
         this->endMilepost = endMilepost;
         this->numLaneDec = numLaneDec;
         this->numLaneInc = numLaneInc;
+    }
+    int getRouteID() {
+        return this->routeID;
+    }
+    char getType() {
+        return this->type;
+    }
+    Vertex *getStartMilepost() {
+        return this->startMilepost;
+    }
+    Vertex *getEndMilepost() {
+        return this->endMilepost;
+    }
+    int getNumLaneDec() {
+        return this->numLaneDec;
+    }
+    int getNumLaneInc() {
+        return this->numLaneInc;
     }
 };
 
