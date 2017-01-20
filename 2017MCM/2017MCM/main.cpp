@@ -13,6 +13,7 @@ class Vertex {
 private:
     double mile;
     Edge *edges[MAX_EDGES_PER_VERTEX];
+    //edges is an array, containing "Edge *" pointers.
 public:
     Vertex(double mile) {
         this->mile = mile;
@@ -25,8 +26,8 @@ public:
     }
     void setEdge(Edge *e) {
         for (int i = 0; i < MAX_EDGES_PER_VERTEX; i++) {
-            if (edges[i] == NULL;) {
-                edges[i] = e;
+            if (this->edges[i] == NULL;) {
+                this->edges[i] = e;
             }
         }
     }
