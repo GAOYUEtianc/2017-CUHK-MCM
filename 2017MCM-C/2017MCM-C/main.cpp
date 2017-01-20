@@ -121,6 +121,7 @@ void move(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
     thisCar->updS();
     if (thisCar->getS() > ROAD_LENGTH) {
         delete thisCar;
+        road[lane][blockPos] = NULL;
     }
     else {
         int newBlockPos = ((int) thisCar->getS()) / BLOCK_LENGTH;
