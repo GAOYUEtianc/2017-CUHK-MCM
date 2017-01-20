@@ -11,7 +11,7 @@
 class Vertex {
 private:
     double mile;
-    Vertex *next;
+    Edge *[4];
 public:
     Vertex(double mile) {
         this->mile = mile;
