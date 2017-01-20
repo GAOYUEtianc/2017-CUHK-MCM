@@ -5,9 +5,10 @@
 //  Created by Shi Yue on 19/1/2017.
 //  Copyright © 2017 Shi Yue. All rights reserved.
 //
-const int MAX_EDGES_PER_VERTEX = 4
-
 #include <iostream>
+#include <fstream>
+
+const int MAX_EDGES_PER_VERTEX = 4
 
 class Vertex {
 private:
@@ -75,6 +76,7 @@ public:
 
 
 int main( ) {
+
 
     return 0;
 }
