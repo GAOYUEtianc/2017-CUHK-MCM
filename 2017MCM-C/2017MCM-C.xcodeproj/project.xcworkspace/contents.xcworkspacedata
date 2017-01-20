@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:2017MCM.xcodeproj">
+      location = "self:2017MCM-C.xcodeproj">
    </FileRef>
 </Workspace>

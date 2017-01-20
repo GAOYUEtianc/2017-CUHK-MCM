@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "110258E51E31A0900050D256"
-               BuildableName = "2017MCM"
-               BlueprintName = "2017MCM"
-               ReferencedContainer = "container:2017MCM.xcodeproj">
+               BlueprintIdentifier = "11259EBA1E3296DB00E444DC"
+               BuildableName = "2017MCM-C"
+               BlueprintName = "2017MCM-C"
+               ReferencedContainer = "container:2017MCM-C.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "110258E51E31A0900050D256"
-            BuildableName = "2017MCM"
-            BlueprintName = "2017MCM"
-            ReferencedContainer = "container:2017MCM.xcodeproj">
+            BlueprintIdentifier = "11259EBA1E3296DB00E444DC"
+            BuildableName = "2017MCM-C"
+            BlueprintName = "2017MCM-C"
+            ReferencedContainer = "container:2017MCM-C.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -55,10 +55,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "110258E51E31A0900050D256"
-            BuildableName = "2017MCM"
-            BlueprintName = "2017MCM"
-            ReferencedContainer = "container:2017MCM.xcodeproj">
+            BlueprintIdentifier = "11259EBA1E3296DB00E444DC"
+            BuildableName = "2017MCM-C"
+            BlueprintName = "2017MCM-C"
+            ReferencedContainer = "container:2017MCM-C.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -74,10 +74,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "110258E51E31A0900050D256"
-            BuildableName = "2017MCM"
-            BlueprintName = "2017MCM"
-            ReferencedContainer = "container:2017MCM.xcodeproj">
+            BlueprintIdentifier = "11259EBA1E3296DB00E444DC"
+            BuildableName = "2017MCM-C"
+            BlueprintName = "2017MCM-C"
+            ReferencedContainer = "container:2017MCM-C.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
