@@ -21,7 +21,7 @@ private:
     Vertex *next;
 public:
     Vertex(double mile) {
-        this.mile = mile;
+        this->mile = mile;
     }
 };
 
@@ -35,11 +35,11 @@ private:
     int numLaneInc;
 public:
     Edge(int routeID, char type, Vertex *startMilepost, Vertex *endMilepost, int numLaneDec, int numLaneInc) {
-        this.routeID = routeID;
-        this.type = type;
-        this.startMilepost = startMilepost;
-        this.endMilepost = endMilepost;
-        this.numLaneDec = numLaneDec;
-        this.numLaneInc = numLaneInc;
+        this->routeID = routeID;
+        this->type = type;
+        this->startMilepost = startMilepost;
+        this->endMilepost = endMilepost;
+        this->numLaneDec = numLaneDec;
+        this->numLaneInc = numLaneInc;
     }
-}
+};
