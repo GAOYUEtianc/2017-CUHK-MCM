@@ -7,11 +7,14 @@
 //
 
 #include <iostream>
-const double DT = 0.1;
-const int ROAD_LENGTH = 1000;
-const int NUM_LANE = 4;
-const int NUM_BLOCKS_PER_LANE = ROAD_LENGTH / NUM_LANE;
+#include <algorithm>
+#include <cmath>
 
+const double DT = 0.1;
+const int NUM_LANE = 4;
+const int ROAD_LENGTH = 1000;
+const int NUM_BLOCKS_PER_LANE = ROAD_LENGTH / NUM_LANE;
+const double LANE_V_LIMIT[5] = {70.0, 60.0, 60.0, 60.0, 60.0};
 
 class Car {
 private:
@@ -21,7 +24,7 @@ private:
     double s;       //position
     int lane;
 public:
-    
+
     Car(char type, double a, double v, double s, int lane) {
         this->type = type;
         this->a = a;
@@ -59,13 +62,13 @@ public:
     void updS() {
         //this method should be called only after new acceleration is set
         double vv = v;
-        v += a * DT;
+        v =  std::max(std::min(v + a * DT, LANE_V_LIMIT[lane]), 0.0);
         s += (vv + v) / 2;
     }
 };
 
 int main() {
     Car *road[NUM_LANE][NUM_BLOCKS_PER_LANE];
-    
+
     return 0;
 }
