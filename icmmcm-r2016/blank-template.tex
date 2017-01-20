@@ -64,14 +64,14 @@
 
 %%% Which contest are you taking part in?  (Just one!)
 
-\contest{ICM or MCM}
+\contest{MCM}
 
 %%% The question you answered.  (Again, just the one.)
 
-\question{A B C}
+\question{C}
 
 %%% Your Contest Team Control Number
-\team{xxxxx}
+\team{63713}
 
 
 %%% A normal document would specify the author's name (and possibly
@@ -173,11 +173,19 @@
 \section{Introduction}%
 \label{sec:introduction}
 
-Write an introduction to your report here. It should include a
-restatement of the problem, the history and context of the problem,
-and your work and results.  Your introduction should be more detailed
-and technical than your summary.  You may also want to include an
-outline of your report, along the lines of
+The authors intended to model the effect on traffic flow of the percentage of self-driving cars, the average traffic volume, and the number of lanes. In particular, interaction between vehicles are implemented by a function between the relative motion state, namely the relative distance and relative velocity of adjacent vehicles and the acceleration of specific vehicles. Then the model was applied to the data for the roads of interest. Afterwards, the authors attempted to determine an optimal strategy towards the following objectives:
+
+\begin{enumerate}
+\item Make sure of the security of this traffic system
+\item Maximize the total traffic flow 
+\item Avoid sharp change to velocities of vehicles to the greatest extent
+\end{enumerate}
+In this article, the authors decomposed the problem into the following steps when modeling and simulating:
+\begin{enumerate}
+\item Construct the model of traffic flow on a transportation network consisting of xxx xx and xxx.
+\item Use the model to  evaluate the traffic state of given roads of interest, analyze the equilibria and tipping point, then analysis the policy changes of lanes according to the simulation result.
+\item Take sensitive cases such as accidents, vibrations of acceleration of vehicles into consideration.
+\end{enumerate}
 \begin{quotation}
   In Section~1 we give our definitions and notation. Section~2
   describes our numerical experiments\ldots{}..
@@ -190,7 +198,7 @@ appropriate \verb|\ref| commands pointing to the correct
 \verb|\label|s in your source.
 
 
-\section{First Section}
+\section{Basic Assumptions}
 
 Here's where you start to lay things out.
 
