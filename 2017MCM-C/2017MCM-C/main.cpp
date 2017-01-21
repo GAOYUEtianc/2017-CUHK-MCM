@@ -126,13 +126,13 @@ int main() {
 //            printf("lane: %4d blockPos: %4d is NULL", lane, blockPos);
 //        }
 //    }
-    
+
 //    printRoad(road, 'v');
 
         for (double t = 0.0; t < END_TIME; t += DT) {
             runDT(road);
         }
-    printRoad(road, 't');
+    printRoad(road, 'v');
     return 0;
 }
 
@@ -141,7 +141,7 @@ void move(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
     Car *thisCar = road[lane][blockPos];
     Car *frontCar = thisCar->frontCar(road);
     Car *backCar = thisCar->backCar(road);
-    
+
     double x = 0;
     if (frontCar != NULL) {
         x += COEF[0] * (frontCar->getV() - thisCar->getV());
@@ -187,10 +187,9 @@ void runDT(Car *road[][NUM_BLOCKS_PER_LANE]) {
                 nearestCarBlock = blockPos;
             }
         }
-        if (rand() <
-            (RAND_MAX *
-             ((double) (nearestCarBlock - NO_CAR_BLOCK))
-             /(TRIGGER_DIST - NO_CAR_BLOCK))) {
+        double probStartACar = (double(nearestCarBlock - NO_CAR_BLOCK))/(TRIGGER_DIST - NO_CAR_BLOCK);
+        probStartACar = 0.3;
+        if (rand() < RAND_MAX * probStartACar) {
                 Car *newCar = new Car('h', 3.0, 25.0 + (rand() % 10), 0.1, lane, 0);
                 road[lane][0] = newCar;
             }
@@ -201,7 +200,7 @@ void printRoad(Car *road[][NUM_BLOCKS_PER_LANE], char parameter) {
     switch (parameter) {
         case 't': {
             for (int blockPos = 0; blockPos < NUM_BLOCKS_PER_LANE; blockPos++) {
-                printf("%4d", blockPos);
+                printf("%5d ", blockPos);
                 for (int lane = 0; lane < NUM_LANE; lane++) {
                     if (road[lane][blockPos] == NULL) {
                         printf("  ");
@@ -215,51 +214,51 @@ void printRoad(Car *road[][NUM_BLOCKS_PER_LANE], char parameter) {
             break;
         case 'a': {
             for (int blockPos = 0; blockPos < NUM_BLOCKS_PER_LANE; blockPos++) {
-                printf("%5d", blockPos);
+                printf("%5d ", blockPos);
                 for (int lane = 0; lane < NUM_LANE; lane++) {
                     if (road[lane][blockPos] == NULL) {
-                        printf("    ");
+                        printf("     ");
                     } else {
-                        printf("%3f ", road[lane][blockPos]->getA());
+                        printf("%5.1f ", road[lane][blockPos]->getA());
                     }
-                    printf("\n");
                 }
+                printf("\n");
             }
         }
             break;
         case 'v': {
             for (int blockPos = 0; blockPos < NUM_BLOCKS_PER_LANE; blockPos++) {
-                printf("%5d", blockPos);
+                printf("%5d ", blockPos);
                 for (int lane = 0; lane < NUM_LANE; lane++) {
                     if (road[lane][blockPos] == NULL) {
-                        printf("    ");
+                        printf("     ");
                     } else {
-                        printf("%3f ", road[lane][blockPos]->getV());
+                        printf("%5.1f ", road[lane][blockPos]->getV());
                     }
-                    printf("\n");
                 }
+                printf("\n");
             }
         }
             break;
         case 's': {
             for (int blockPos = 0; blockPos < NUM_BLOCKS_PER_LANE; blockPos++) {
-                printf("%5d", blockPos);
+                printf("%5d ", blockPos);
                 for (int lane = 0; lane < NUM_LANE; lane++) {
                     if (road[lane][blockPos] == NULL) {
-                        printf("    ");
+                        printf("     ");
                     } else {
-                        printf("%3f ", road[lane][blockPos]->getS());
+                        printf("%5.1f ", road[lane][blockPos]->getS());
                     }
-                    printf("\n");
                 }
+                printf("\n");
             }
         }
             break;
-            
+
     }
     for (int lane = 0; lane < NUM_LANE; lane++) {
         for (int blockPos = 0; blockPos < NUM_BLOCKS_PER_LANE; blockPos++) {
-            
+
         }
     }
 }
