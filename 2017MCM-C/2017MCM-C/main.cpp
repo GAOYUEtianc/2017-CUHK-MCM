@@ -32,7 +32,8 @@ const int NO_CAR_BLOCK = NO_CAR_DIST / BLOCK_LENGTH;
 const int TRIGGER_DIST = 100;
 const int TRIGGER_BLOCK = TRIGGER_DIST / BLOCK_LENGTH;
 const double COEF[4] = {0.0073, 0.0010, -0.0024, -0.0004};
-//
+    //CAUTION!!! SerialNumber is a global variable
+int SN = 0;
 
 class Car {
 private:
@@ -132,18 +133,21 @@ public:
         this->preLane[0] = this->lane;
         this->lane = lane;
     }
-    void setBlockPos(int blockPos) {
+    void setBlockPos(Car *road[][NUM_BLOCKS_PER_LANE], int blockPos) {
+        if (road[lane][preBlockPos[REACTION_TIME-1]]->getSerialNum() == serialNum) {
+            road[lane][preBlockPos[REACTION_TIME-1]] = NULL;
+        }
         for (int preTime = REACTION_TIME - 1; preTime >= 1 ; preTime--) {
             this->preBlockPos[preTime] = this->preBlockPos[preTime-1]; //NOTE!!!
         }
         this->preBlockPos[0] = this->blockPos;
         this->blockPos = blockPos;
     }
-    void updVSBlockPos() {//TODO change pre attributes
+    void updVSBlockPos(Car *road[][NUM_BLOCKS_PER_LANE]) {//TODO change pre attributes
         //this method should be called only after new acceleration is set
         setV(std::max(std::min(v + a * DT, LANE_V_LIMIT[lane]), 0.0));
         setS(s + ((v + preV[0]) / 2.0) * DT);
-        setBlockPos(std::min(((int)s)/BLOCK_LENGTH, NUM_BLOCKS_PER_LANE - 1));
+        setBlockPos(road, std::min(((int)s)/BLOCK_LENGTH, NUM_BLOCKS_PER_LANE - 1));
         // printf("a:%f  v:%f  s:%f\n", a, v, s);
     }
     Car *frontCar(Car *road[NUM_LANE][NUM_BLOCKS_PER_LANE]) {
@@ -206,12 +210,6 @@ int main() {
             road[lane][blockPos] = NULL;
         }
     }
-//    for (int lane = 0; lane < NUM_LANE; lane++) {
-//        for (int blockPos = 0; blockPos < NUM_BLOCKS_PER_LANE; blockPos++) {
-//            assert(road[lane][blockPos] == NULL);
-//            printf("lane: %4d blockPos: %4d is NULL", lane, blockPos);
-//        }
-//    }
 
 //    printRoad(road, 'v');
 
@@ -231,20 +229,24 @@ void move(Car *road[][NUM_BLOCKS_PER_LANE], Car *buffer[NUM_BLOCKS_PER_LANE], in
     }
 }
 
-//    double x = 0;
-//    if (frontCar != NULL) {
-//        x += COEF[0] * (frontCar->getV() - thisCar->getV());
-//        x += COEF[1] * (frontCar->getS() - thisCar->getS());
-//    }
-//    if (backCar != NULL) {
-//        x += COEF[2] * (thisCar->getV() - backCar->getV());
-//        x += COEF[3] * (thisCar->getS() - backCar->getS());
-//    }
-
 void moveSelfCar(Car *road[][NUM_BLOCKS_PER_LANE], Car *buffer[NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
     Car *thisCar = road[lane][blockPos];
     Car *frontCar = thisCar->frontCar(road);
     Car *backCar = thisCar->backCar(road);
+    
+    double x = 0;
+    if (frontCar != NULL) {
+        x += COEF[0] * (frontCar->getPreV(REACTION_TIME-1) - thisCar->getV());
+        x += COEF[1] * (frontCar->getPreS(REACTION_TIME-1) - thisCar->getS());
+    }
+    if (backCar != NULL) {
+        x += COEF[2] * (thisCar->getPreV(REACTION_TIME-1) - backCar->getV());
+        x += COEF[3] * (thisCar->getPreS(REACTION_TIME-1) - backCar->getS());
+    }
+    double a = 6.0 / (1+exp(-4.0*pow(x, 7.0))) - 3.0;       //new acceleration
+    if (frontCar != NULL) {
+        a += frontCar->getA()-frontCar->getPreA(0);
+    }
 }
 void moveHumanCar(Car *road[][NUM_BLOCKS_PER_LANE], Car *buffer[NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
     Car *thisCar = road[lane][blockPos];
@@ -263,12 +265,12 @@ void moveHumanCar(Car *road[][NUM_BLOCKS_PER_LANE], Car *buffer[NUM_BLOCKS_PER_L
     double a = 6.0 / (1+exp(-4.0*pow(x, 7.0))) - 3.0;       //new acceleration
 
     thisCar->setA(a);
-    thisCar->updVSBlockPos();//TODO when to delete car
+    thisCar->updVSBlockPos(road);
     if (thisCar->getS() > ROAD_LENGTH) {
         if (buffer[lane] != NULL) {
             for (int preTime = 0; preTime < REACTION_TIME; preTime++) {
-                if (road[lane][buffer[lane]->getPreBlockPos(i)]->getSerialNum() == buffer[lane]->getSerialNum()) {
-                    road[lane][buffer[lane]->getPreBlockPos(i)] = NULL;
+                if (road[lane][buffer[lane]->getPreBlockPos(preTime)]->getSerialNum() == buffer[lane]->getSerialNum()) {
+                    road[lane][buffer[lane]->getPreBlockPos(preTime)] = NULL;
                 }
             }
             delete buffer[lane];
@@ -296,7 +298,7 @@ void runDT(Car *road[][NUM_BLOCKS_PER_LANE], Car *buffer[NUM_BLOCKS_PER_LANE]) {
         double probStartACar = (double(nearestCarBlock - NO_CAR_BLOCK))/(TRIGGER_DIST - NO_CAR_BLOCK);
         probStartACar = 0.5;
         if (rand() < RAND_MAX * probStartACar) {
-                Car *newCar = new Car('h', 0, 25.0 + (rand() % 10), 0.1, lane, 0);
+                Car *newCar = new Car('h', 0, 25.0 + (rand() % 10), 0.1, lane, 0, SN++);
                 road[lane][0] = newCar;
             }
     }
@@ -308,7 +310,8 @@ void printRoad(Car *road[][NUM_BLOCKS_PER_LANE], char parameter) {
             for (int blockPos = 0; blockPos < NUM_BLOCKS_PER_LANE; blockPos++) {
                 printf("%5d ", blockPos);
                 for (int lane = 0; lane < NUM_LANE; lane++) {
-                    if (road[lane][blockPos] == NULL) {
+                    if ((road[lane][blockPos] == NULL) ||
+                        (road[lane][blockPos]->getBlockPos() != blockPos)) {
                         printf("  ");
                     } else {
                         printf("%c ", road[lane][blockPos]->getType());
@@ -322,7 +325,8 @@ void printRoad(Car *road[][NUM_BLOCKS_PER_LANE], char parameter) {
             for (int blockPos = 0; blockPos < NUM_BLOCKS_PER_LANE; blockPos++) {
                 printf("%5d ", blockPos);
                 for (int lane = 0; lane < NUM_LANE; lane++) {
-                    if (road[lane][blockPos] == NULL) {
+                    if ((road[lane][blockPos] == NULL) ||
+                        (road[lane][blockPos]->getBlockPos() != blockPos)) {
                         printf("     ");
                     } else {
                         printf("%5.1f ", road[lane][blockPos]->getA());
@@ -336,7 +340,8 @@ void printRoad(Car *road[][NUM_BLOCKS_PER_LANE], char parameter) {
             for (int blockPos = 0; blockPos < NUM_BLOCKS_PER_LANE; blockPos++) {
                 printf("%5d ", blockPos);
                 for (int lane = 0; lane < NUM_LANE; lane++) {
-                    if (road[lane][blockPos] == NULL) {
+                    if ((road[lane][blockPos] == NULL) ||
+                        (road[lane][blockPos]->getBlockPos() != blockPos)) {
                         printf("     ");
                     } else {
                         printf("%5.1f ", road[lane][blockPos]->getV());
@@ -350,7 +355,8 @@ void printRoad(Car *road[][NUM_BLOCKS_PER_LANE], char parameter) {
             for (int blockPos = 0; blockPos < NUM_BLOCKS_PER_LANE; blockPos++) {
                 printf("%5d ", blockPos);
                 for (int lane = 0; lane < NUM_LANE; lane++) {
-                    if (road[lane][blockPos] == NULL) {
+                    if ((road[lane][blockPos] == NULL) ||
+                        (road[lane][blockPos]->getBlockPos() != blockPos)) {
                         printf("     ");
                     } else {
                         printf("%5.1f ", road[lane][blockPos]->getS());
@@ -361,10 +367,5 @@ void printRoad(Car *road[][NUM_BLOCKS_PER_LANE], char parameter) {
         }
             break;
 
-    }
-    for (int lane = 0; lane < NUM_LANE; lane++) {
-        for (int blockPos = 0; blockPos < NUM_BLOCKS_PER_LANE; blockPos++) {
-
-        }
     }
 }
