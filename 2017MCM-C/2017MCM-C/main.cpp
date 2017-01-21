@@ -13,7 +13,7 @@
 
 //Time
 const double DT = 0.1;
-const double END_TIME = 0.5;
+const double END_TIME = 1.0;
 //Road
 const int NUM_LANE = 4;
 const int ROAD_LENGTH = 1000;
@@ -45,7 +45,7 @@ public:
         this->type = type;
         this->a = a;
         this->v = v;
-        this->a = a;
+        this->s = s;
         this->lane = lane;
         this->blockPos = blockPos;
     }
@@ -82,9 +82,9 @@ public:
         //this method should be called only after new acceleration is set
         double vv = v;
         v =  std::max(std::min(v + a * DT, LANE_V_LIMIT[lane]), 0.0);
-        printf("v = %f  vv = %f\n", v, vv);
-        s += ((vv + v) / 2) * DT;
-//        printf("%f\n", s);
+//        printf("v = %f  vv = %f\n", v, vv);
+        s += ((vv + v) / 2.0) * DT;
+        printf("a:%f  v:%f  s:%f\n", a, v, s);
     }
     Car *frontCar(Car *road[NUM_LANE][NUM_BLOCKS_PER_LANE]) {
         for (int i = 1; (i < OBSERVABLE_BLOCKS_HUMAN_DRI
@@ -155,16 +155,16 @@ void move(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
     double a = 6.0 / (1+exp(-4.0*pow(x, 7.0))) - 3.0;       //new acceleration
 //    thisCar->setA(a);
 //    printf("%f",a);
-    thisCar->setA(0);
+    thisCar->setA(0);//TODO
     thisCar->updS();
-    if ((int)thisCar->getS() >= ROAD_LENGTH) {
+    if ((int)(thisCar->getS()) >= ROAD_LENGTH) {
         delete thisCar;
         road[lane][blockPos] = NULL;
     }
     else {
 //        std::cout << thisCar->getS() << "\n";
 //        std::cout << ((int)(thisCar->getS())) / BLOCK_LENGTH << "\n";
-        int newBlockPos = std::min(int(thisCar->getS()) / BLOCK_LENGTH, NUM_BLOCKS_PER_LANE-1);
+        int newBlockPos = std::min((int)(thisCar->getS()) / BLOCK_LENGTH, NUM_BLOCKS_PER_LANE-1);
         road[lane][newBlockPos] = road[lane][blockPos];//assuming no lane change
 //        if (thisCar->getS() > 1000.0) {
 //            printf("%3f       %d\n", thisCar->getS(), newBlockPos);
@@ -191,7 +191,7 @@ void runDT(Car *road[][NUM_BLOCKS_PER_LANE]) {
         double probStartACar = (double(nearestCarBlock - NO_CAR_BLOCK))/(TRIGGER_DIST - NO_CAR_BLOCK);
         probStartACar = 0.5;
         if (rand() < RAND_MAX * probStartACar) {
-                Car *newCar = new Car('h', 3.0, 25.0 + (rand() % 10), 0.1, lane, 0);
+                Car *newCar = new Car('h', 0, 25.0 + (rand() % 10), 0.1, lane, 0);
                 road[lane][0] = newCar;
             }
     }
