@@ -86,6 +86,12 @@ public:
     int getPreLane() {
         return preLane;
     }
+    int getBlockPos() {
+        return blockPos;
+    }
+    int getPreBlockPos() {
+        return preBlockPos;
+    }
     void setA(double a) {
         this->a = a;
     }
@@ -112,7 +118,13 @@ public:
     void setPreLane(int preLane) {
         this->preLane = preLane;
     }
-    void updS() {
+    void setBlockPos(int blockPos) {
+        this->blockPos = blockPos;
+    }
+    void setPreBlockPos(int preBlockPos) {
+        this->preBlockPos = preBlockPos;
+    }
+    void updS() {//TODO change pre attributes
         //this method should be called only after new acceleration is set
         double vv = v;
         v =  std::max(std::min(v + a * DT, LANE_V_LIMIT[lane]), 0.0);
@@ -121,9 +133,10 @@ public:
         printf("a:%f  v:%f  s:%f\n", a, v, s);
     }
     Car *frontCar(Car *road[NUM_LANE][NUM_BLOCKS_PER_LANE]) {
-        for (int i = 1; (i < OBSERVABLE_BLOCKS_HUMAN_DRI
-             ) && (blockPos + i < NUM_BLOCKS_PER_LANE); i++) {
+        for (int i = 1; (i < OBSERVABLE_BLOCKS_HUMAN_DRI)
+                && (blockPos + i < NUM_BLOCKS_PER_LANE); i++) {
             if ((road[lane][blockPos+i] != NULL) &&
+                (road[lane][blockPos+i]->getPreBlockPos() == blockPos+i) &&
                 (road[lane][blockPos+i]->getS()-s
                     <= OBSERVABLE_DIST_HUMAN_DRI)) {
                 return road[lane][blockPos+i];
@@ -135,6 +148,7 @@ public:
         for (int i = 1; (i < OBSERVABLE_BLOCKS_HUMAN_DRI
                          ) && blockPos - i >= 0; i++) {
             if ((road[lane][blockPos-i] != NULL) &&
+                (road[lane][blockPos-i]->getBlockPos() == blockPos+i) &&
                 (s-road[lane][blockPos-i]->getS()
                     <= OBSERVABLE_DIST_HUMAN_DRI)) {
                 return road[lane][blockPos-i];
@@ -144,6 +158,8 @@ public:
     }
 };
 void move(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos);
+void moveSelfCar(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos);
+void moveHumanCar(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos);
 void runDT(Car *road[][NUM_BLOCKS_PER_LANE]);
 void printRoad(Car *road[][NUM_BLOCKS_PER_LANE], char parameter);
 
@@ -173,9 +189,12 @@ int main() {
 
 
 void move(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
-    Car *thisCar = road[lane][blockPos];
-    Car *frontCar = thisCar->frontCar(road);
-    Car *backCar = thisCar->backCar(road);
+    if (road[lane][blockPos]->getType == 's') {
+        moveSelfCar(road, lane, blockPos);
+    } else {
+        moveHumanCar(road, lane, blockPos);
+    }
+}
 
     double x = 0;
     if (frontCar != NULL) {
@@ -186,9 +205,8 @@ void move(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
         x += COEF[2] * (thisCar->getV() - backCar->getV());
         x += COEF[3] * (thisCar->getS() - backCar->getS());
     }
-    double a = 6.0 / (1+exp(-4.0*pow(x, 7.0))) - 3.0;       //new acceleration
-//    thisCar->setA(a);
-//    printf("%f",a);
+
+
     thisCar->setA(0);//TODO
     thisCar->updS();
     if ((int)(thisCar->getS()) >= ROAD_LENGTH) {
@@ -204,7 +222,35 @@ void move(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
 //            printf("%3f       %d\n", thisCar->getS(), newBlockPos);
 //        }
         road[lane][blockPos] = NULL;
+
+
+void moveSelfCar(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
+    Car *thisCar = road[lane][blockPos];
+    Car *frontCar = thisCar->frontCar(road);
+    Car *backCar = thisCar->backCar(road);
+}
+void moveHumanCar(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
+    Car *thisCar = road[lane][blockPos];
+    Car *frontCar = thisCar->frontCar(road);
+    Car *backCar = thisCar->backCar(road);
+
+    double x = 0;
+    if (frontCar != NULL) {
+        x += COEF[0] * (frontCar->getPreV() - thisCar->getV());
+        x += COEF[1] * (frontCar->getPreS() - thisCar->getS());
     }
+    if (backCar != NULL) {
+        x += COEF[2] * (thisCar->getV() - backCar->getV());
+        x += COEF[3] * (thisCar->getS() - backCar->getS());
+    }
+    double a = 6.0 / (1+exp(-4.0*pow(x, 7.0))) - 3.0;       //new acceleration
+
+    thisCar->setPreA(thisCar->getA());
+    thisCar->setPreV(thisCar->getV());
+    thisCar->setPreS(thisCar->getS());
+    thisCar->setA(a);
+    thisCat->updS();
+
 }
 
 void runDT(Car *road[][NUM_BLOCKS_PER_LANE]) {
