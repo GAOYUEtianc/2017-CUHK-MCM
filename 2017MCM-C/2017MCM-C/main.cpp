@@ -134,12 +134,12 @@ public:
     }
     void setBlockPos(Car *road[][NUM_BLOCKS_PER_LANE], int blockPos) {
         int lastBlockPos = preBlockPos[REACTION_TIME-1];
-        printf("blockPos:%d  lastBlockPos:%d\n",blockPos,lastBlockPos);
-        printf("cond1:%d  cond2:%d  cond3:%d\n",(lastBlockPos != blockPos),(road[lane][lastBlockPos] != NULL),(road[lane][lastBlockPos]->getSerialNum() == serialNum));
+//        printf("blockPos:%d  lastBlockPos:%d\n",blockPos,lastBlockPos);
+//        printf("cond1:%d  cond2:%d  cond3:%d\n",(lastBlockPos != blockPos),(road[lane][lastBlockPos] != NULL),(road[lane][lastBlockPos]->getSerialNum() == serialNum));
         if ((lastBlockPos != blockPos) && (road[lane][lastBlockPos] != NULL) && (road[lane][lastBlockPos]->getSerialNum() == serialNum)) {
             road[lane][lastBlockPos] = NULL;
-            printf("LINE 138: buffer[lane] = NULL excuted\n");
-            printf("lane:%d  lastBlockPos:%d  set as NULL\n",lane,lastBlockPos);
+//            printf("LINE 138: buffer[lane] = NULL excuted\n");
+//            printf("lane:%d  lastBlockPos:%d  set as NULL\n",lane,lastBlockPos);
         }
         for (int preTime = REACTION_TIME - 1; preTime >= 1 ; preTime--) {
             this->preBlockPos[preTime] = this->preBlockPos[preTime-1]; //NOTE!!!
@@ -152,7 +152,7 @@ public:
         setV(std::max(std::min(v + a * DT, LANE_V_LIMIT[lane]), 0.0));
         setS(s + ((v + preV[0]) / 2.0) * DT);
         setBlockPos(road, std::min(((int)s)/BLOCK_LENGTH, NUM_BLOCKS_PER_LANE - 1));
-        printf("a:%f  v:%f  s:%f  lane:%d  blockPos:%d  SN:%d\n", a, v, s, lane, blockPos, serialNum);
+//        printf("a:%f  v:%f  s:%f  lane:%d  blockPos:%d  SN:%d\n", a, v, s, lane, blockPos, serialNum);
     }
     Car *frontCar(Car *road[NUM_LANE][NUM_BLOCKS_PER_LANE]) {
         if (type == 's') {   //self-driving car
@@ -222,7 +222,7 @@ int main() {
         printf("t=%f\n", t);
         runDT(road, buffer);
     }
-//    printRoad(road, 's');
+    printRoad(road, 's');
     return 0;
 }
 
