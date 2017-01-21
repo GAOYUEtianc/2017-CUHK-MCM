@@ -47,15 +47,17 @@ private:
     int preLane[REACTION_TIME];        //previous lane
     int blockPos;
     int preBlockPos[REACTION_TIME];    //previous block
+    int serialNum;
 public:
 
-    Car(char type, double a, double v, double s, int lane, int blockPos) {
+    Car(char type, double a, double v, double s, int lane, int blockPos, int serialNum) {
         this->type = type;
         this->a = a;
         this->v = v;
         this->s = s;
         this->lane = lane;
         this->blockPos = blockPos;
+        this->serialNum = serialNum;
         for (int i = 0; i < 15; i++) {
             this->preA[i] = 0;
             this->preV[i] = 0;
@@ -96,6 +98,9 @@ public:
     }
     int getPreBlockPos(int preTime) {
         return preBlockPos[preTime];
+    }
+    int getSerialNum() {
+        return serialNum;
     }
     void setA(double a) {
         for (int preTime = REACTION_TIME - 1; preTime >= 1 ; preTime--) {
@@ -185,16 +190,17 @@ public:
         return NULL;
     }
 };
-    
-void move(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos);
-void moveSelfCar(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos);
-void moveHumanCar(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos);
-void runDT(Car *road[][NUM_BLOCKS_PER_LANE]);
+
+void move(Car *road[][NUM_BLOCKS_PER_LANE], Car *buffer[NUM_BLOCKS_PER_LANE], int lane, int blockPos);
+void moveSelfCar(Car *road[][NUM_BLOCKS_PER_LANE], Car *buffer[NUM_BLOCKS_PER_LANE], int lane, int blockPos);
+void moveHumanCar(Car *road[][NUM_BLOCKS_PER_LANE], Car *buffer[NUM_BLOCKS_PER_LANE], int lane, int blockPos);
+void runDT(Car *road[][NUM_BLOCKS_PER_LANE], Car *buffer[NUM_BLOCKS_PER_LANE]);
 void printRoad(Car *road[][NUM_BLOCKS_PER_LANE], char parameter);
 
 int main() {
 
     Car *road[NUM_LANE][NUM_BLOCKS_PER_LANE];
+    Car *buffer[NUM_LANE];
     for (int lane = 0; lane < NUM_LANE; lane++) {
         for (int blockPos = 0; blockPos < NUM_BLOCKS_PER_LANE; blockPos++) {
             road[lane][blockPos] = NULL;
@@ -210,18 +216,18 @@ int main() {
 //    printRoad(road, 'v');
 
         for (double t = 0.0; t < END_TIME; t += DT) {
-            runDT(road);
+            runDT(road, buffer);
         }
     printRoad(road, 's');
     return 0;
 }
 
 
-void move(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
+void move(Car *road[][NUM_BLOCKS_PER_LANE], Car *buffer[NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
     if (road[lane][blockPos]->getType() == 's') {
-        moveSelfCar(road, lane, blockPos);
+        moveSelfCar(road, buffer, lane, blockPos);
     } else {
-        moveHumanCar(road, lane, blockPos);
+        moveHumanCar(road, buffer, lane, blockPos);
     }
 }
 
@@ -235,12 +241,12 @@ void move(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
 //        x += COEF[3] * (thisCar->getS() - backCar->getS());
 //    }
 
-void moveSelfCar(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
+void moveSelfCar(Car *road[][NUM_BLOCKS_PER_LANE], Car *buffer[NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
     Car *thisCar = road[lane][blockPos];
     Car *frontCar = thisCar->frontCar(road);
     Car *backCar = thisCar->backCar(road);
 }
-void moveHumanCar(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
+void moveHumanCar(Car *road[][NUM_BLOCKS_PER_LANE], Car *buffer[NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
     Car *thisCar = road[lane][blockPos];
     Car *frontCar = thisCar->frontCar(road);
     Car *backCar = thisCar->backCar(road);
@@ -258,14 +264,25 @@ void moveHumanCar(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
 
     thisCar->setA(a);
     thisCar->updVSBlockPos();//TODO when to delete car
+    if (thisCar->getS() > ROAD_LENGTH) {
+        if (buffer[lane] != NULL) {
+            for (int preTime = 0; preTime < REACTION_TIME; preTime++) {
+                if (road[lane][buffer[lane]->getPreBlockPos(i)]->getSerialNum() == buffer[lane]->getSerialNum()) {
+                    road[lane][buffer[lane]->getPreBlockPos(i)] = NULL;
+                }
+            }
+            delete buffer[lane];
+            buffer[lane] = thisCar;
+        }
+    }
 
 }
 
-void runDT(Car *road[][NUM_BLOCKS_PER_LANE]) {
+void runDT(Car *road[][NUM_BLOCKS_PER_LANE], Car *buffer[NUM_BLOCKS_PER_LANE]) {
     for (int blockPos = NUM_BLOCKS_PER_LANE - 1; blockPos >= 0; blockPos--) {
         for (int lane = 0; lane < NUM_LANE; lane++) {
             if (road[lane][blockPos] != NULL) {
-                move(road, lane, blockPos);
+                move(road, buffer, lane, blockPos);
             }
         }
     }
