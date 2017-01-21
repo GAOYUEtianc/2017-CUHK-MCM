@@ -13,20 +13,20 @@
 
 //Time
 const double DT = 0.1;
-const double END_TIME = 100.0;
+const double END_TIME = 1.0;
 //Road
 const int NUM_LANE = 4;
-const int ROAD_LENGTH = 100;
-const int BLOCK_LENGTH = 1;
+const int ROAD_LENGTH = 1000;
+const int BLOCK_LENGTH = 5;
 const int NUM_BLOCKS_PER_LANE = ROAD_LENGTH / BLOCK_LENGTH;
 const double LANE_V_LIMIT[5] = {70.0, 60.0, 60.0, 60.0, 60.0};
 //Car setting
 const int OBSERVABLE_DIST_HUMAN_DRI = 100;
 const int OBSERVABLE_BLOCKS_HUMAN_DRI = OBSERVABLE_DIST_HUMAN_DRI / BLOCK_LENGTH + 1;
     //Caution!!! OBSERVABLE_BLOCKS_HUMAN_DRI may exceeds the actual observable range!!!
-const int NO_CAR_DIST = 50;
+const int NO_CAR_DIST = 20;
 const int NO_CAR_BLOCK = NO_CAR_DIST / BLOCK_LENGTH;
-const int TRIGGER_DIST = 150;
+const int TRIGGER_DIST = 100;
 const int TRIGGER_BLOCK = TRIGGER_DIST / BLOCK_LENGTH;
 const double COEF[4] = {0.0073, 0.0010, -0.0024, -0.0004};
 //
@@ -83,6 +83,7 @@ public:
         double vv = v;
         v =  std::max(std::min(v + a * DT, LANE_V_LIMIT[lane]), 0.0);
         s += (vv + v) / 2;
+//        printf("%f\n", s);
     }
     Car *frontCar(Car *road[NUM_LANE][NUM_BLOCKS_PER_LANE]) {
         for (int i = 1; (i < OBSERVABLE_BLOCKS_HUMAN_DRI
@@ -136,11 +137,6 @@ int main() {
 }
 
 
-
-
-
-
-
 void move(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
     Car *thisCar = road[lane][blockPos];
     Car *frontCar = thisCar->frontCar(road);
@@ -156,15 +152,22 @@ void move(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
         x += COEF[3] * (thisCar->getS() - backCar->getS());
     }
     double a = 6.0 / (1+exp(-4.0*pow(x, 7.0))) - 3.0;       //new acceleration
-    thisCar->setA(a);
+//    thisCar->setA(a);
+//    printf("%f",a);
+    thisCar->setA(0);
     thisCar->updS();
-    if (thisCar->getS() > ROAD_LENGTH) {
+    if ((int)thisCar->getS() >= ROAD_LENGTH) {
         delete thisCar;
         road[lane][blockPos] = NULL;
     }
     else {
-        int newBlockPos = ((int) thisCar->getS()) / BLOCK_LENGTH;
+//        std::cout << thisCar->getS() << "\n";
+//        std::cout << ((int)(thisCar->getS())) / BLOCK_LENGTH << "\n";
+        int newBlockPos = std::min(int(thisCar->getS()) / BLOCK_LENGTH, NUM_BLOCKS_PER_LANE-1);
         road[lane][newBlockPos] = road[lane][blockPos];//assuming no lane change
+//        if (thisCar->getS() > 1000.0) {
+//            printf("%3f       %d\n", thisCar->getS(), newBlockPos);
+//        }
         road[lane][blockPos] = NULL;
     }
 }
@@ -188,7 +191,7 @@ void runDT(Car *road[][NUM_BLOCKS_PER_LANE]) {
             (RAND_MAX *
              ((double) (nearestCarBlock - NO_CAR_BLOCK))
              /(TRIGGER_DIST - NO_CAR_BLOCK))) {
-                Car *newCar = new Car('h', 1.5, 25.0 + (rand() % 10), 0.0, lane, 0);
+                Car *newCar = new Car('h', 3.0, 25.0 + (rand() % 10), 0.1, lane, 0);
                 road[lane][0] = newCar;
             }
     }
