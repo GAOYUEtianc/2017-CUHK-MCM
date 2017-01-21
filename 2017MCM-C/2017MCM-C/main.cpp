@@ -25,7 +25,7 @@ const int OBSERVABLE_DIST_FORWARD = 100;
 const int OBSERVABLE_BLOCKS_FORWARD = OBSERVABLE_DIST_FORWARD / BLOCK_LENGTH + 1;
     //Caution!!! OBSERVABLE_BLOCKS_FORWARD may exceeds the actual observable range!!!
 const int OBSERVABLE_DIST_BACKWARD = 50;
-const int OBSERVABLE_BLOCKS_BacWARD = OBSERVABLE_DIST_BACKWARD / BLOCK_LENGTH + 1;
+const int OBSERVABLE_BLOCKS_BACKWARD = OBSERVABLE_DIST_BACKWARD / BLOCK_LENGTH + 1;
 const int REACTION_TIME = 15; // 0.1s
 const int NO_CAR_DIST = 20;
 const int NO_CAR_BLOCK = NO_CAR_DIST / BLOCK_LENGTH;
@@ -52,15 +52,17 @@ public:
     Car(char type, double a, double v, double s, int lane, int blockPos) {
         this->type = type;
         this->a = a;
-        this->preA = 0;
         this->v = v;
-        this->preV = 0;
         this->s = s;
-        this->preS = 0;
         this->lane = lane;
-        this->preLane = lane;
         this->blockPos = blockPos;
-        this->preBlockPos = 0;
+        for (int i = 0; i < 15; i++) {
+            this->preA[i] = 0;
+            this->preV[i] = 0;
+            this->preS[i] = 0;
+            this->preLane[i] = 0;
+            this->preBlockPos[i] = 0;
+        }
     }
     char getType() {
         return type;
@@ -96,15 +98,15 @@ public:
         return preBlockPos[preTime];
     }
     void setA(double a) {
-        for (int preTime = REACTION_TIME - 1; preTime >= 1 ;) {
-            this->preA[preTime] = this->preA[--preTime]; //NOTE!!!
+        for (int preTime = REACTION_TIME - 1; preTime >= 1 ; preTime--) {
+            this->preA[preTime] = this->preA[preTime-1]; //NOTE!!!
         }
         this->preA[0] = this->a;
         this->a = a;
     }
     void setV(double v) {
-        for (int preTime = REACTION_TIME - 1; preTime >= 1 ;) {
-            this->preV[preTime] = this->preV[--preTime]; //NOTE!!!
+        for (int preTime = REACTION_TIME - 1; preTime >= 1 ; preTime--) {
+            this->preV[preTime] = this->preV[preTime-1]; //NOTE!!!
         }
         this->preV[0] = this->v;
         this->v = v;
@@ -112,22 +114,22 @@ public:
     void setS(double s) {
         //after running this method, the pointers road[][] need to be updated
         //TODO
-        for (int preTime = REACTION_TIME - 1; preTime >= 1 ;) {
-            this->preS[preTime] = this->preS[--preTime]; //NOTE!!!
+        for (int preTime = REACTION_TIME - 1; preTime >= 1 ; preTime--) {
+            this->preS[preTime] = this->preS[preTime-1]; //NOTE!!!
         }
         this->preS[0] = this->s;
         this->s = s;
     }
     void setLane(int lane) {
-        for (int preTime = REACTION_TIME - 1; preTime >= 1 ;) {
-            this->preLane[preTime] = this->preLane[--preTime]; //NOTE!!!
+        for (int preTime = REACTION_TIME - 1; preTime >= 1 ; preTime--) {
+            this->preLane[preTime] = this->preLane[preTime-1]; //NOTE!!!
         }
         this->preLane[0] = this->lane;
         this->lane = lane;
     }
     void setBlockPos(int blockPos) {
-        for (int preTime = REACTION_TIME - 1; preTime >= 1 ;) {
-            this->preBlockPos[preTime] = this->preBlockPos[--preTime]; //NOTE!!!
+        for (int preTime = REACTION_TIME - 1; preTime >= 1 ; preTime--) {
+            this->preBlockPos[preTime] = this->preBlockPos[preTime-1]; //NOTE!!!
         }
         this->preBlockPos[0] = this->blockPos;
         this->blockPos = blockPos;
@@ -135,8 +137,8 @@ public:
     void updVSBlockPos() {//TODO change pre attributes
         //this method should be called only after new acceleration is set
         setV(std::max(std::min(v + a * DT, LANE_V_LIMIT[lane]), 0.0));
-        setS(s + ((v + preV[0]) / 2.0) * DT)
-        setBlockPos(std::min(((int)s)/BLOCK_LENGTH, NUM_BLOCKS_PER_LANE - 1))
+        setS(s + ((v + preV[0]) / 2.0) * DT);
+        setBlockPos(std::min(((int)s)/BLOCK_LENGTH, NUM_BLOCKS_PER_LANE - 1));
         // printf("a:%f  v:%f  s:%f\n", a, v, s);
     }
     Car *frontCar(Car *road[NUM_LANE][NUM_BLOCKS_PER_LANE]) {
@@ -168,6 +170,7 @@ public:
                     (road[lane][blockPos-i]->getBlockPos() == blockPos-i)) {
                     return road[lane][blockPos-i];
                 }
+            }
             return NULL;
         }
         for (int i = 1; (i < OBSERVABLE_BLOCKS_BACKWARD
@@ -178,10 +181,11 @@ public:
                     <= OBSERVABLE_DIST_BACKWARD)) {
                 return road[lane][blockPos-i];
             }
-        }·
+        }
         return NULL;
     }
 };
+    
 void move(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos);
 void moveSelfCar(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos);
 void moveHumanCar(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos);
@@ -214,22 +218,22 @@ int main() {
 
 
 void move(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
-    if (road[lane][blockPos]->getType == 's') {
+    if (road[lane][blockPos]->getType() == 's') {
         moveSelfCar(road, lane, blockPos);
     } else {
         moveHumanCar(road, lane, blockPos);
     }
 }
 
-    double x = 0;
-    if (frontCar != NULL) {
-        x += COEF[0] * (frontCar->getV() - thisCar->getV());
-        x += COEF[1] * (frontCar->getS() - thisCar->getS());
-    }
-    if (backCar != NULL) {
-        x += COEF[2] * (thisCar->getV() - backCar->getV());
-        x += COEF[3] * (thisCar->getS() - backCar->getS());
-    }
+//    double x = 0;
+//    if (frontCar != NULL) {
+//        x += COEF[0] * (frontCar->getV() - thisCar->getV());
+//        x += COEF[1] * (frontCar->getS() - thisCar->getS());
+//    }
+//    if (backCar != NULL) {
+//        x += COEF[2] * (thisCar->getV() - backCar->getV());
+//        x += COEF[3] * (thisCar->getS() - backCar->getS());
+//    }
 
 void moveSelfCar(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
     Car *thisCar = road[lane][blockPos];
@@ -243,12 +247,12 @@ void moveHumanCar(Car *road[][NUM_BLOCKS_PER_LANE], int lane, int blockPos) {
 
     double x = 0;
     if (frontCar != NULL) {
-        x += COEF[0] * (frontCar->getPreV() - thisCar->getV());
-        x += COEF[1] * (frontCar->getPreS() - thisCar->getS());
+        x += COEF[0] * (frontCar->getPreV(REACTION_TIME-1) - thisCar->getV());
+        x += COEF[1] * (frontCar->getPreS(REACTION_TIME-1) - thisCar->getS());
     }
     if (backCar != NULL) {
-        x += COEF[2] * (thisCar->getV() - backCar->getV());
-        x += COEF[3] * (thisCar->getS() - backCar->getS());
+        x += COEF[2] * (thisCar->getPreV(REACTION_TIME-1) - backCar->getV());
+        x += COEF[3] * (thisCar->getPreS(REACTION_TIME-1) - backCar->getS());
     }
     double a = 6.0 / (1+exp(-4.0*pow(x, 7.0))) - 3.0;       //new acceleration
 
