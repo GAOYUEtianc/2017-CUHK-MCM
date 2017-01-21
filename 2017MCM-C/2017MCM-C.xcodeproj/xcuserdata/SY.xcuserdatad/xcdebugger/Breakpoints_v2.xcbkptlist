@@ -15,8 +15,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "183"
             endingLineNumber = "183"
-            landmarkName = "main()"
-            landmarkType = "9">
+            landmarkName = "backCar(Car *road[NUM_LANE][NUM_BLOCKS_PER_LANE])"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -31,8 +31,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "184"
             endingLineNumber = "184"
-            landmarkName = "main()"
-            landmarkType = "9">
+            landmarkName = "backCar(Car *road[NUM_LANE][NUM_BLOCKS_PER_LANE])"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -47,7 +47,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "130"
             endingLineNumber = "130"
-            landmarkName = "setPreLane(int preLane)"
+            landmarkName = "setBlockPos(int blockPos)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -63,7 +63,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "132"
             endingLineNumber = "132"
-            landmarkName = "setPreLane(int preLane)"
+            landmarkName = "setBlockPos(int blockPos)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
