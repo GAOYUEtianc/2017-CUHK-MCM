@@ -16,7 +16,7 @@ const double DT = 0.1;
 const double END_TIME = 100.0;
 //Road
 const int NUM_LANE = 4;
-const int ROAD_LENGTH = 4;
+const int ROAD_LENGTH = 100;
 const int BLOCK_LENGTH = 1;
 const int NUM_BLOCKS_PER_LANE = ROAD_LENGTH / BLOCK_LENGTH;
 const double LANE_V_LIMIT[5] = {70.0, 60.0, 60.0, 60.0, 60.0};
@@ -126,12 +126,12 @@ int main() {
 //        }
 //    }
     
+//    printRoad(road, 'v');
+
+        for (double t = 0.0; t < END_TIME; t += DT) {
+            runDT(road);
+        }
     printRoad(road, 't');
-//
-//        for (double t = 0.0; t < END_TIME; t += DT) {
-//            runDT(road);
-//        }
-//    printRoad(road, 't');
     return 0;
 }
 
@@ -205,8 +205,8 @@ void printRoad(Car *road[][NUM_BLOCKS_PER_LANE], char parameter) {
                     } else {
                         printf("%c ", road[lane][blockPos]->getType());
                     }
-                    printf("\n");
                 }
+                printf("\n");
             }
         }
             break;
