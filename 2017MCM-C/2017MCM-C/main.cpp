@@ -13,13 +13,13 @@
 
 //Time
 const double DT = 0.1;
-const double END_TIME = 1.0;
+const double END_TIME = 0.5;
 //Road
 const int NUM_LANE = 4;
 const int ROAD_LENGTH = 1000;
 const int BLOCK_LENGTH = 5;
 const int NUM_BLOCKS_PER_LANE = ROAD_LENGTH / BLOCK_LENGTH;
-const double LANE_V_LIMIT[5] = {70.0, 60.0, 60.0, 60.0, 60.0};
+const double LANE_V_LIMIT[5] = {50.0, 40.0, 40.0, 40.0, 40.0};
 //Car setting
 const int OBSERVABLE_DIST_HUMAN_DRI = 100;
 const int OBSERVABLE_BLOCKS_HUMAN_DRI = OBSERVABLE_DIST_HUMAN_DRI / BLOCK_LENGTH + 1;
@@ -82,12 +82,13 @@ public:
         //this method should be called only after new acceleration is set
         double vv = v;
         v =  std::max(std::min(v + a * DT, LANE_V_LIMIT[lane]), 0.0);
-        s += (vv + v) / 2;
+        printf("v = %f  vv = %f\n", v, vv);
+        s += ((vv + v) / 2) * DT;
 //        printf("%f\n", s);
     }
     Car *frontCar(Car *road[NUM_LANE][NUM_BLOCKS_PER_LANE]) {
         for (int i = 1; (i < OBSERVABLE_BLOCKS_HUMAN_DRI
-             ) && blockPos + i <= NUM_BLOCKS_PER_LANE; i++) {
+             ) && (blockPos + i < NUM_BLOCKS_PER_LANE); i++) {
             if ((road[lane][blockPos+i] != NULL) &&
                 (road[lane][blockPos+i]->getS()-s
                     <= OBSERVABLE_DIST_HUMAN_DRI)) {
@@ -132,7 +133,7 @@ int main() {
         for (double t = 0.0; t < END_TIME; t += DT) {
             runDT(road);
         }
-    printRoad(road, 'v');
+    printRoad(road, 's');
     return 0;
 }
 
@@ -188,7 +189,7 @@ void runDT(Car *road[][NUM_BLOCKS_PER_LANE]) {
             }
         }
         double probStartACar = (double(nearestCarBlock - NO_CAR_BLOCK))/(TRIGGER_DIST - NO_CAR_BLOCK);
-        probStartACar = 0.3;
+        probStartACar = 0.5;
         if (rand() < RAND_MAX * probStartACar) {
                 Car *newCar = new Car('h', 3.0, 25.0 + (rand() % 10), 0.1, lane, 0);
                 road[lane][0] = newCar;
