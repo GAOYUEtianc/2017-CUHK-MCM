@@ -10,10 +10,11 @@
 #include <algorithm>
 #include <cmath>
 #include "assert.h"
+#include <ctime>
 
 //Time
 const double DT = 0.1;
-const double END_TIME = 10.0;
+const double END_TIME = 10000.0;
 //Road
 const int NUM_LANE = 4;
 const int ROAD_LENGTH = 1000;
@@ -217,12 +218,13 @@ int main() {
         buffer[lane] = NULL;
     }
 //    printRoad(road, 'v');
-
+    std::clock_t start = clock();
     for (double t = 0.0; t < END_TIME; t += DT) {
-        printf("t=%f\n", t);
+//        printf("t=%f\n", t);
         runDT(road, buffer);
     }
     printRoad(road, 's');
+    std::cout << (clock() - start)/(double)CLOCKS_PER_SEC << "s consumed\n";
     return 0;
 }
 
