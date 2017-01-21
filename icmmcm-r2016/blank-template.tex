@@ -223,7 +223,7 @@ $\Delta$$v_{1}$ &m/s &velocity of the front car minus the velocity of the object
 \hline
 $\Delta$$v_{2}$ &m/s &velocity of the object car minus the velocity of the back car\\
 \hline
-$\Delta$$v_{3}$ &m/s &max velocity minus the velocity of object car\\
+$\Delta$$v_{3}$ &m/s &speed limit minus the velocity of object car\\
 \hline
 $d_{1}$ &m &distance between the front car and the object car\\
 \hline
@@ -248,16 +248,14 @@ $\Delta$t &s &Reaction time of driver\\
 
 \section{Analysis of the Problem}
 \subsection{Basic model for motion}
-Firstly, in order to enlarge the traffic capacity, the transportation under different percentage of self-driving cars should be analyzed.In order to simulate the transportation status, the authors gave an initial velocity to vehicles and constructed an  acceleration function. For each ordinary vehicle, its instantaneous acceleration is positively correlated to $\Delta$$v_{1}$, $\Delta$$v_{3}$, and $d_{1}$, negatively correlated to $\Delta$$v_{2}$ and $d_{2}$ since the drivers tend to accelerate if the vehicles in the front is running fast or far away, and versa for the vehicles behind, besides, if the velocity is lower than the speed limit, the vehicle tends to accelerate. To simplify the relation, we introduce a variable x ranges from -1 to 1 which is of linear relationship to  $\Delta$$v_{1}$,  $d_{1}$, $\Delta$$v_{2}$ and $d_{2}$. By assigning reasonable values to these four independent values and fitting coefficients, we got the following formula:\\
-\\
- x = 0.0071(s/m)$\Delta$$v_{1}$ + 0.0010($m^{-1}$)$d_{1}$ - 0.0024(s/m)$\Delta$$v_{2}$ - 0.0004($m^{-1}$)$d_{2}$ + 0.0100(s/m)$\Delta$$v_{3}$ - 0.1
-\\
-\\
+Firstly, in order to enlarge the traffic capacity, the transportation under different percentage of self-driving cars should be analyzed.In order to simulate the transportation status, the authors gave an initial velocity to vehicles and constructed an  acceleration function. For each ordinary vehicle, its instantaneous acceleration is positively correlated to $\Delta$$v_{1}$, $\Delta$$v_{3}$, and $d_{1}$, negatively correlated to $\Delta$$v_{2}$ and $d_{2}$ since the drivers tend to accelerate if the vehicles in the front is running fast or far away, and versa for the vehicles behind, besides, if the velocity is lower than the speed limit, the vehicle tends to accelerate. To simplify the relation, we introduce a variable x ranges from -1 to 1 which is of linear relationship to  $\Delta$$v_{1}$,  $d_{1}$, $\Delta$$v_{2}$ and $d_{2}$. By assigning reasonable values to these four independent values and fitting coefficients, we got the following formula:
+\begin{quotation}
+ x = 0.01590(s/m)$\Delta$$v_{1}$ + 0.0010($m^{-1}$)$d_{1}$ - 0.005376(s/m)$\Delta$$v_{2}$ - 0.0004($m^{-1}$)$d_{2}$ + 0.0224(s/m)$\Delta$$v_{3}$ - 0.1
+\end{quotation}
 Obviously, x is positively correlated to acceleration, however, a linear equation is not accurate enough to describe the relation, to make the motion as even as possible, we adapted "S curve". By fitting data, we got the following formula:\\
-\\
+\begin{quotation}
 $a_{o}$ = 3($\frac{2}{1 + e^{-4x^{3}}}$ - 1) %the unit is m/s^2
-\\
-\\
+\end{quotation}
 The figure of this function is as follow:\\
 \begin{figure}[!htp]
 \centering
