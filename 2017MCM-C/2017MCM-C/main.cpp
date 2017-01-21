@@ -33,21 +33,31 @@ const double COEF[4] = {0.0073, 0.0010, -0.0024, -0.0004};
 
 class Car {
 private:
-    char type;      //self-driving 's' or human-driving 'h'
-    double a;       //acceleration
-    double v;       //velocity
-    double s;       //position
+    char type;              //self-driving 's' or human-driving 'h'
+    double a;               //acceleration
+    double preA;            //previous acceleration
+    double v;               //velocity
+    double preV;            //previous velocity
+    double s;               //position
+    double preS;            //previous position
     int lane;
+    int preLane;            //previous lane
     int blockPos;
+    int preBlockPos;        //previous block
 public:
 
     Car(char type, double a, double v, double s, int lane, int blockPos) {
         this->type = type;
         this->a = a;
+        this->preA = 0;
         this->v = v;
+        this->preV = 0;
         this->s = s;
+        this->preS = 0;
         this->lane = lane;
+        this->preLane = lane;
         this->blockPos = blockPos;
+        this->preBlockPos = 0;
     }
     char getType() {
         return type;
@@ -55,28 +65,52 @@ public:
     double getA() {
         return a;
     }
+    double getPreA() {
+        return preA;
+    }
     double getV() {
         return v;
+    }
+    double getPreV() {
+        return preV;
     }
     double getS() {
         return s;
     }
+    double getPreS() {
+        return preS;
+    }
     int getLane() {
         return lane;
+    }
+    int getPreLane() {
+        return preLane;
     }
     void setA(double a) {
         this->a = a;
     }
+    void setPreA(double preA) {
+        this->preA = preA;
+    }
     void setV(double v) {
         this->v = v;
+    }
+    void setPreV(double preV) {
+        this->preV = pre;
     }
     void setS(double s) {
         //after running this method, the pointers road[][] need to be updated
         //TODO
         this->s = s;
     }
+    void setPreS(double preS) {
+        this->preS = preS;
+    }
     void setLane(int lane) {
         this->lane = lane;
+    }
+    void setPreLane(int preLane) {
+        this->preLane = preLane;
     }
     void updS() {
         //this method should be called only after new acceleration is set
