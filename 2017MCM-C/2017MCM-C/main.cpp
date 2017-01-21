@@ -24,6 +24,7 @@ const double LANE_V_LIMIT[5] = {50.0, 40.0, 40.0, 40.0, 40.0};
 const int OBSERVABLE_DIST_HUMAN_DRI = 100;
 const int OBSERVABLE_BLOCKS_HUMAN_DRI = OBSERVABLE_DIST_HUMAN_DRI / BLOCK_LENGTH + 1;
     //Caution!!! OBSERVABLE_BLOCKS_HUMAN_DRI may exceeds the actual observable range!!!
+const int REACTION_TIME = 15; // 0.1s
 const int NO_CAR_DIST = 20;
 const int NO_CAR_BLOCK = NO_CAR_DIST / BLOCK_LENGTH;
 const int TRIGGER_DIST = 100;
@@ -33,17 +34,17 @@ const double COEF[4] = {0.0073, 0.0010, -0.0024, -0.0004};
 
 class Car {
 private:
-    char type;              //self-driving 's' or human-driving 'h'
-    double a;               //acceleration
-    double preA;            //previous acceleration
-    double v;               //velocity
-    double preV;            //previous velocity
-    double s;               //position
-    double preS;            //previous position
+    char type;                         //self-driving 's' or human-driving 'h'
+    double a;                          //acceleration
+    double preA[REACTION_TIME];        //previous acceleration
+    double v;                          //velocity
+    double preV[REACTION_TIME];        //previous velocity
+    double s;                          //position
+    double preS[REACTION_TIME];        //previous position
     int lane;
-    int preLane;            //previous lane
+    int preLane[REACTION_TIME];        //previous lane
     int blockPos;
-    int preBlockPos;        //previous block
+    int preBlockPos[REACTION_TIME];    //previous block
 public:
 
     Car(char type, double a, double v, double s, int lane, int blockPos) {
@@ -65,44 +66,50 @@ public:
     double getA() {
         return a;
     }
-    double getPreA() {
-        return preA;
+    double getPreA(int preTime) {
+        return preA[preTime];
     }
     double getV() {
         return v;
     }
-    double getPreV() {
-        return preV;
+    double getPreV(int preTime) {
+        return preV[preTime];
     }
     double getS() {
         return s;
     }
-    double getPreS() {
-        return preS;
+    double getPreS(int preTime) {
+        return preS[preTime];
     }
     int getLane() {
         return lane;
     }
-    int getPreLane() {
-        return preLane;
+    int getPreLane(int preTime) {
+        return preLane[preTime];
     }
     int getBlockPos() {
         return blockPos;
     }
-    int getPreBlockPos() {
-        return preBlockPos;
+    int getPreBlockPos(int preTime) {
+        return preBlockPos[preTime];
     }
     void setA(double a) {
         this->a = a;
     }
     void setPreA(double preA) {
-        this->preA = preA;
+        for (int preTime = REACTION_TIME - 1; preTime >= 1 ;) {
+            this->preA[preTime] = this->preA[--preTime]; //NOTE!!!
+        }
+        this->preA[0] = preA;
     }
     void setV(double v) {
         this->v = v;
     }
     void setPreV(double preV) {
-        this->preV = pre;
+        for (int preTime = REACTION_TIME - 1; preTime >= 1 ;) {
+            this->preV[preTime] = this->preV[--preTime]; //NOTE!!!
+        }
+        this->preV[0] = preV;
     }
     void setS(double s) {
         //after running this method, the pointers road[][] need to be updated
@@ -110,19 +117,28 @@ public:
         this->s = s;
     }
     void setPreS(double preS) {
-        this->preS = preS;
+        for (int preTime = REACTION_TIME - 1; preTime >= 1 ;) {
+            this->preS[preTime] = this->preS[--preTime]; //NOTE!!!
+        }
+        this->preS[0] = preS;
     }
     void setLane(int lane) {
         this->lane = lane;
     }
     void setPreLane(int preLane) {
-        this->preLane = preLane;
+        for (int preTime = REACTION_TIME - 1; preTime >= 1 ;) {
+            this->preLane[preTime] = this->preLane[--preTime]; //NOTE!!!
+        }
+        this->preLane[0] = preLane;
     }
     void setBlockPos(int blockPos) {
         this->blockPos = blockPos;
     }
     void setPreBlockPos(int preBlockPos) {
-        this->preBlockPos = preBlockPos;
+        for (int preTime = REACTION_TIME - 1; preTime >= 1 ;) {
+            this->preBlockPos[preTime] = this->preBlockPos[--preTime]; //NOTE!!!
+        }
+        this->preBlockPos[0] = preBlockPos;
     }
     void updS() {//TODO change pre attributes
         //this method should be called only after new acceleration is set
